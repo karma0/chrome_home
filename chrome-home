@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Set this to your real-life IP address or hostname
+REMOTE_SSH_HOST=127.0.0.1
+PORT=7331
+
+# Create a process group, then kill 0 (group) if any one bails
+set -m
+(
+  ( chromium --proxy-server="socks5://localhost:$PORT" --host-resolver-rules="MAP * 0.0.0.0 , EXCLUDE $REMOTE_SSH_HOST" --user-data-dir=/tmp 2>&1 >/dev/null || kill 0 ) &
+  ( ssh -ND $PORT $REMOTE_SSH_HOST 2>&1 >/dev/null || kill 0 ) &
+  wait
+)
+
+exit 0
